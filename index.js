@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const mysql = require('mysql');
 const port = 3000;
 
 let corsOptions = {
@@ -9,9 +10,27 @@ let corsOptions = {
 
 app.use(cors(corsOptions));
 
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "0000",
+  database: "bbs"
+});
+
+db.connect();
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+app.get("/list", (req, res) => {
+  const sqlQuery = "SELECT id, title, content, write, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM board;";
+  db.query(sqlQuery, (err, results) => {
+    if (err) throw err;
+    res.send(results);
+  });
+});
+
+db.end();
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
